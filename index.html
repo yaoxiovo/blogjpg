@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>纯前端音乐播放器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0f0f14;
+      color: #fff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .player {
+      width: 320px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    }
+
+    .title {
+      font-size: 16px;
+      margin-bottom: 10px;
+      text-align: center;
+      opacity: .9;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #4f7cff;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #6a8cff;
+    }
+
+    input[type=range] {
+      width: 100%;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="player">
+  <div class="title" id="title">未播放</div>
+
+  <audio id="audio"></audio>
+
+  <button onclick="togglePlay()">播放 / 暂停</button>
+  <button onclick="next()">下一首</button>
+
+  <input type="range" id="progress" value="0" />
+</div>
+
+<script>
+  // ⚠️ 改成你的 R2 公共地址
+  const BASE_URL = "https://r2.xingye.cyou/";
+
+  const playlist = [
+    { title: "Song 1", src: "song1.mp3" },
+    { title: "Song 2", src: "song2.mp3" },
+    { title: "Song 3", src: "song3.mp3" }
+  ];
+
+  const audio = document.getElementById("audio");
+  const titleEl = document.getElementById("title");
+  const progress = document.getElementById("progress");
+
+  let index = 0;
+
+  function loadSong() {
+    const song = playlist[index];
+    audio.src = BASE_URL + song.src;
+    titleEl.textContent = song.title;
+  }
+
+  function togglePlay() {
+    if (audio.paused) audio.play();
+    else audio.pause();
+  }
+
+  function next() {
+    index = (index + 1) % playlist.length;
+    loadSong();
+    audio.play();
+  }
+
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+    progress.value = (audio.currentTime / audio.duration) * 100;
+  });
+
+  progress.addEventListener("input", () => {
+    audio.currentTime = (progress.value / 100) * audio.duration;
+  });
+
+  audio.addEventListener("ended", next);
+
+  loadSong();
+</script>
+
+</body>
+</html>
